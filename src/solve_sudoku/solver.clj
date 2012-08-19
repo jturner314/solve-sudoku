@@ -38,7 +38,16 @@
                                  guesses)]
               (some identity solutions)))))
 
-(defn puzzle->str
+(defn str-to-puzzle
+  "Returns a puzzle from interpreting string. string should be space-delimited
+  with zeros indicating the unknown cells."
+  [string]
+  (letfn [(line-to-vec [string]
+            (vec (map #(Integer/parseInt (str %))
+                      (string/split string #"\s+"))))]
+    (vec (map line-to-vec (string/split string #"\r?\n")))))
+
+(defn puzzle-to-str
   "Returns a string with a pretty representation of puzzle. Adds borders around
   3x3 squares and replaces zeros with spaces."
   [puzzle]

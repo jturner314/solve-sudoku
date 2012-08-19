@@ -1,6 +1,12 @@
-(ns solve-sudoku.core)
+(ns solve-sudoku.core
+  (:use [solve-sudoku.solver :only [solve-puzzle str-to-puzzle puzzle-to-str]])
+  (:gen-class))
 
 (defn -main
-  "I don't do a whole lot."
-  [& args]
-  (println "Hello, World!"))
+  "Reads puzzle in file at path and prints puzzle and its solution to *out*."
+  [path & args]
+  (let [input (str-to-puzzle (slurp path))]
+    (println "Input:")
+    (println (puzzle-to-str input))
+    (println "Solution:")
+    (println (puzzle-to-str (solve-puzzle input)))))

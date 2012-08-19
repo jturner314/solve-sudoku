@@ -33,7 +33,7 @@
   ([puzzle] (solve-puzzle puzzle [0 0]))
   ([puzzle pos]
      (cond
-      (and (>= (pos 0) 8) (>= (pos 1) 8)) puzzle
+      (or (>= (pos 0) 9) (>= (pos 1) 9)) puzzle
       (not (zero? (get-in puzzle pos))) (recur puzzle (next-pos pos))
       :else (let [guesses (valid-guesses puzzle pos)
                   solutions (map #(solve-puzzle (assoc-in puzzle pos %)

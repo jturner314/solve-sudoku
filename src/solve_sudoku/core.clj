@@ -30,11 +30,15 @@
       [r (inc c)]
       [(inc r) 0])))
 
-(defn puzzle->str [puzzle]
-  (let [row->str (fn [row] (str (string/join "|" (map #(apply str %) (partition 3 row))) \newline))
-        columnified-puzzle (map row->str puzzle)
-        row-sets (map #(apply str %) (partition 3 columnified-puzzle))]
-    (string/join "---+---+---\n" row-sets)))
+(defn puzzle->str
+  [puzzle]
+  (let [col-sep \|
+        row-sep "+---+---+---+\n"
+        grouped (map (fn [row] (map #(apply str %) (partition 3 row))) puzzle)
+        rows (map (fn [row] (str col-sep (string/join col-sep row) col-sep \newline)) grouped)
+        rows-grouped (map #(string/join %) (partition 3 rows))
+        stringified (str row-sep (string/join row-sep rows-grouped) row-sep)]
+    (apply str (replace {\0 \space} stringified))))
 
 (defn solve-puzzle
   ([puzzle] (solve-puzzle puzzle [0 0]))

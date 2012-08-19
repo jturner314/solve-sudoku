@@ -1,4 +1,5 @@
 (ns solve-sudoku.core
+  (:use [clojure.set :only [difference]])
   (:require [clojure.string :as string]))
 
 (def input [[1 0 0 9 0 7 0 0 3]
@@ -11,26 +12,19 @@
             [0 5 0 0 0 0 0 4 0]
             [2 0 0 8 0 6 0 0 9]])
 
-(defn valid-puzzle-seq? [coll]
-  (let [filtered (remove zero? coll)]
-    (= (count (distinct filtered))
-       (count filtered))))
-
-(defn valid-assoc?
-  "Returns true if assoc just made at pos results in valid puzzle."
+(defn valid-guesses
   [puzzle pos]
-  (let [[r c] pos
+  (let [valid-nums (apply hash-set (range 1 10))
+        [r c] pos
         row (puzzle r)
-        col (nth (apply map vector puzzle) c)
-        square-top (* (quot r 3) 3)
-        square-left (* (quot c 3) 3)
-        square-rows (subvec puzzle square-top (+ square-top 3))
-        square (map #(subvec % square-left (+ square-left 3)) square-rows)]
-    (and (valid-puzzle-seq? row)
-         (valid-puzzle-seq? col)
-         (valid-puzzle-seq? (flatten square)))))
+        col (map #(% c) puzzle)
+        [square-top square-left] (map #(* (quot % 3) 3) pos)
+        square (mapcat (fn [row] (subvec row square-left (+ square-left 3)))
+                       (subvec puzzle square-top (+ square-top 3)))]
+    (difference valid-nums row col square)))
 
-(defn next-pos [pos]
+(defn next-pos
+  [pos]
   (let [[r c] pos]
     (if (< c 8)
       [r (inc c)]
@@ -48,10 +42,9 @@
      (cond
       (and (>= (pos 0) 8) (>= (pos 1) 8)) puzzle
       (not (zero? (get-in puzzle pos))) (recur puzzle (next-pos pos))
-      :else (let [guesses (map #(assoc-in puzzle pos %) (range 1 10))
-                  valid-guesses (filter #(valid-assoc? % pos) guesses)
-                  valid-solutions (map #(solve-puzzle % (next-pos pos)) valid-guesses)]
-              (some identity valid-solutions)))))
+      :else (let [guesses (valid-guesses puzzle pos)
+                  solutions (map #(solve-puzzle (assoc-in puzzle pos %) (next-pos pos)) guesses)]
+              (some identity solutions)))))
 
 
 (defn -main

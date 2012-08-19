@@ -13,7 +13,10 @@
         [square-top square-left] (map #(* (quot % 3) 3) pos)
         square (mapcat (fn [row] (subvec row square-left (+ square-left 3)))
                        (subvec puzzle square-top (+ square-top 3)))]
-    (difference valid-nums row col square)))
+    (difference valid-nums
+                (apply sorted-set row)
+                (apply sorted-set col)
+                (apply sorted-set square))))
 
 (defn- next-pos
   "Returns next position in a sudoku puzzle, wrapping at the end of each row."

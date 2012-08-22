@@ -11,8 +11,9 @@
         row (puzzle r)
         col (map #(% c) puzzle)
         [square-top square-left] (map #(* (quot % 3) 3) pos)
-        square (mapcat (fn [row] (subvec row square-left (+ square-left 3)))
-                       (subvec puzzle square-top (+ square-top 3)))]
+        square (for [rsq (range square-top (+ square-top 3))
+                     csq (range square-left (+ square-left 3))]
+                 (get-in puzzle [rsq csq]))]
     (difference valid-nums
                 (apply sorted-set row)
                 (apply sorted-set col)
@@ -54,11 +55,8 @@
   "Returns a string with a pretty representation of puzzle. Adds borders around
   3x3 squares and replaces zeros with spaces."
   [puzzle]
-  (let [col-sep \|
-        row-sep "+---+---+---+\n"
-        grouped (map (fn [row] (map #(apply str %) (partition 3 row))) puzzle)
-        rows (map (fn [row] (str col-sep (string/join col-sep row) col-sep \newline))
-                  grouped)
-        rows-grouped (map #(string/join %) (partition 3 rows))
-        stringified (str row-sep (string/join row-sep rows-grouped) row-sep)]
-    (apply str (replace {\0 \space} stringified))))
+  (let [outerpose (fn [sep coll] (concat [sep] (interpose sep coll) [sep]))
+        with-vert (map #(->> % (partition 3) (outerpose \|) vec) puzzle)
+        with-newline (map #(conj % \newline) with-vert)
+        with-horiz (outerpose "+---+---+---+\n" (partition 3 with-newline))]
+    (apply str (flatten with-horiz))))

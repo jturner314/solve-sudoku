@@ -59,4 +59,4 @@
         with-vert (map #(->> % (partition 3) (outerpose \|) vec) puzzle)
         with-newline (map #(conj % \newline) with-vert)
         with-horiz (outerpose "+---+---+---+\n" (partition 3 with-newline))]
-    (apply str (flatten with-horiz))))
+    (string/replace (apply str (flatten with-horiz)) "0" " ")))
